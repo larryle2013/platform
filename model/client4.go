@@ -234,6 +234,14 @@ func (c *Client4) GetEmojisRoute() string {
 	return fmt.Sprintf("/emoji")
 }
 
+func (c *Client4) GetOAuthAppsRoute() string {
+	return fmt.Sprintf("/oauth/apps")
+}
+
+func (c *Client4) GetOAuthAppRoute(appId string) string {
+	return fmt.Sprintf("/oauth/apps/%v", appId)
+}
+
 func (c *Client4) DoApiGet(url string, etag string) (*http.Response, *AppError) {
 	return c.DoApiRequest(http.MethodGet, url, "", etag)
 }
@@ -2187,6 +2195,18 @@ func (c *Client4) GetLogs(page, perPage int) ([]string, *Response) {
 	} else {
 		defer closeBody(r)
 		return ArrayFromJson(r.Body), BuildResponse(r)
+	}
+}
+
+// OAuth Section
+
+// CreateOAuthApp will register a new OAuth 2.0 client application with the Mattermost OAuth 2.0 service provider.
+func (c *Client4) CreateOAuthApp(app *OAuthApp) (*OAuthApp, *Response) {
+	if r, err := c.DoApiPost(c.GetOAuthAppsRoute(), app.ToJson()); err != nil {
+		return nil, &Response{StatusCode: r.StatusCode, Error: err}
+	} else {
+		defer closeBody(r)
+		return OAuthAppFromJson(r.Body), BuildResponse(r)
 	}
 }
 
